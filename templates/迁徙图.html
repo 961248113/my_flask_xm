@@ -1,0 +1,29 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <style type="text/css">
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  #map {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+  <div id="map"></div>
+    //Margin设为0则与浏览器无边界融合，
+  //div属性容器id，后面computer-chart.js脚本里需要用到该属性，并将echart填充到该容器里，当然，div可以有多个，故可以填充多个echart实例。
+  <script src="./echarts/echarts.js"></script>
+  <script src="http://api.map.baidu.com/api?v=2.0&ak=vAP0NUiuhP3zsCkjR4gSpp6AxmIH3csQ"></script>
+  <script src="./js/lib/jquery.min.js"></script>
+  <script src="./js/lib/require.js"></script>
+  <script src="./js/commuter-chart.js"></script>
+</body>
+</html>

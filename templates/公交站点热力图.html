@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=fRcVf6fsDFNTTlSeMrzoqttwNhbxeSLG"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/Heatmap/2.0/src/Heatmap_min.js"></script>
+    <title>公交热力图功能示例</title>
+    <style type="text/css">
+		ul,li{list-style: none;margin:0;padding:0;float:left;}
+		html{height:100%}
+		body{height:100%;margin:0px;padding:0px;font-family:"微软雅黑";}
+		#container{height:90%;width:100%;}
+		#r-result{width:100%;}
+    </style>	
+</head>
+<body>
+	<div id="container"  style="margin-top: 40px;"></div>
+	<div id="r-result"  style="margin-top: 15px;">
+		<input type="button"  onclick="openHeatmap();" value="显示热力图"/><input type="button"  onclick="closeHeatmap();" value="关闭热力图"/>
+	</div>
+{#    <h1>{{ json_data }}</h1>#}
+</body>
+</html>
+<script type="text/javascript">
+    var map = new BMap.Map("container", {enableMapClick:false});           // 创建地图实例并关闭默认地图POI事件
+
+    var point = new BMap.Point(117.088857, 36.681165);
+    map.centerAndZoom(point, 12);             // 初始化地图，设置中心点坐标和地图级别
+    map.enableScrollWheelZoom(); // 允许滚轮缩放
+    map.setMapStyle({
+        style: 'black'//地图背景颜色,black,dark
+    });
+
+    var marker = new BMap.Marker(point);  // 创建标注
+    map.addOverlay(marker);               // 将标注添加到地图中
+    marker.setAnimation(BMAP_ANIMATION_BOUNCE); //设置点的跳动
+    marker.enableDragging();           // 设置点可拖拽
+{#    var text = {{ json_data }};#}
+{#    var points = eval('('+text+')');#}
+    var points ={{ json_data|tojson }};//json点
+    if(!isSupportCanvas()){
+    	alert('热力图目前只支持有canvas支持的浏览器,您所使用的浏览器不能使用热力图功能~')
+    }
+	//详细的参数,可以查看heatmap.js的文档 https://github.com/pa7/heatmap.js/blob/master/README.md
+	//参数说明如下:
+	/* visible 热力图是否显示,默认为true
+     * opacity 热力的透明度,1-100
+     * radius 势力图的每个点的半径大小   
+     * gradient  {JSON} 热力图的渐变区间 . gradient如下所示
+     *	{
+			.2:'rgb(0, 255, 255)',
+			.5:'rgb(0, 110, 255)',
+			.8:'rgb(100, 0, 255)'
+		}
+		其中 key 表示插值的位置, 0~1. 
+		    value 为颜色值. 
+     */
+	heatmapOverlay = new BMapLib.HeatmapOverlay({"radius":5, "opacity":50,"gradient":{
+	  		0:'rgb(102, 255, 0)',
+	 	 	.5:'rgb(255, 170, 0)',
+		  	1:'rgb(255, 0, 0)'
+		}});//gradient调节颜色
+	map.addOverlay(heatmapOverlay);
+	heatmapOverlay.setDataSet({data:points,max:50000});//
+    // setDataSet格式固定，设置热力图展现的详细数据, 实现之后,即可以立刻展现
+//参数:
+//{Json Object} data
+//{"max" : {Number} 权重的最大值, 
+//"data" : {Array} 坐标详细数据,格式如下 
+//{"lng":116.421969,"lat":39.913527,"count":3}, 其中
+//lng lat分别为经纬度, count权重值
+
+ //   addDataPoint(lng, lat, count)
+//添加热力图的详细坐标点
+//setDataSet(data)
+//设置热力图展现的详细数据, 实现之后,即可以立刻展现
+//setOptions(options)
+//设置热力图展现的配置
+//toggle()
+//更改热力图的展现或者关闭
+
+
+	//是否显示热力图
+    function openHeatmap(){
+        heatmapOverlay.show();
+    }
+	function closeHeatmap(){
+        heatmapOverlay.hide();
+    }
+	closeHeatmap();
+    function setGradient(){
+     	/*格式如下所示:颜色范围
+		{
+	  		0:'rgb(102, 255, 0)',
+	 	 	.5:'rgb(255, 170, 0)',
+		  	1:'rgb(255, 0, 0)'
+		}*/
+     	var gradient = {};
+     	var colors = document.querySelectorAll("input[type='color']");
+     	colors = [].slice.call(colors,0);
+     	colors.forEach(function(ele){
+			gradient[ele.getAttribute("data-key")] = ele.value; 
+     	});
+        heatmapOverlay.setOptions({"gradient":gradient});
+    }
+	//判断浏览区是否支持canvas
+    function isSupportCanvas(){
+        var elem = document.createElement('canvas');
+        return !!(elem.getContext && elem.getContext('2d'));
+    }
+//    for(var i=0;i<points.length;i++) {
+//    var hotPoint = new BMap.Point(points[i].lng, points[i].lat);
+
+//    //自定义覆盖物
+//    var myIcon = new BMap.Icon("image/testPoint.png", new BMap.Size(20,20), {
+//         anchor: new BMap.Size(12, 14), //中心点设置
+//    });
+//
+//    var marker = new BMap.Marker(hotPoint,{icon:myIcon});  // 创建标注
+//    map.addOverlay(marker); // 将标注添加到地图中
+//
+//    marker.addEventListener("click",getAttr);
+//    function getAttr(){
+//        var p = marker.getPosition();       //获取marker的位置
+//        p.id = "123";
+//        console.log("点的位置是" + hotPoint.lng + "," + hotPoint.lat);
+//        console.log("marker的位置是" + p.lng + "," + p.lat);
+//    }
+//}
+
+</script>
