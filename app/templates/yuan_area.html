@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>热力实战 - 玉渊潭周边定位分布</title>
+    <meta name="description" content="北京玉渊潭周边1万7千条定位数据的热力分布情况，颜色和高度表示定位聚合后的情况。同时配有图例说明。">
+    <link rel="stylesheet" href="//a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css"/>
+    <style>
+        html, body, #container {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+        }
+
+        /* 图例样式 */
+        .legend {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .legend ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .color-item {
+            width: 60px;
+            height: 20px;
+            display: inline-block;
+        }
+
+        .label-item {
+            display: inline-block;
+            width: 60px;
+            margin-left: -2px;
+            font-size: 14px;
+        }
+
+        /* 信息浮框 */
+        .info span {
+            min-width: 150px;
+            max-width: 300px;
+            color: #1b91ff;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<div class="legend">
+    <ul class="colors" id="legend-color"></ul>
+    <ul class="labels" id="legend-label"></ul>
+</div>
+<div class="info" style="width: 300px;">
+    <h4>热力数据</h4>
+    <p>当前热力值：<span id="val">--</span></p>
+    <p>热力中心点坐标：
+        <span id="lng-lat">--</span>
+    </p>
+</div>
+<script src="//webapi.amap.com/loca?v=1.2.0&key=您申请的key值"></script>
+<script src="//a.amap.com/Loca/static/dist/jquery.min.js"></script>
+<script>
+
+    var map = Loca.create('container', {
+        pitch: 60,
+        center: [116.321432, 39.916705],
+        zoom: 16,
+        features: ['bg', 'road']
+    });
+
+    var layer = Loca.visualLayer({
+        container: map,
+        eventSupport: true,
+        type: 'heatmap',
+        shape: 'hexagon'  // 蜂窝六边形
+    });
+
+    $.get('//a.amap.com/Loca/static/mock/yuyuantan.csv', function (csv) {
+        layer.setData(csv, {
+            lnglat: 'lnglat',
+            value: 'cnt',
+            type: 'csv'
+        });
+
+        layer.setOptions({
+            unit: 'meter',
+            heightUnit: 'meter',
+            style: {
+                color: [
+                    '#2c7bb6',
+                    '#abd9e9',
+                    '#ffffbf',
+                    '#fdae61',
+                    '#d7191c'
+                ],
+                height: [0, 500],
+                radius: 15,
+                gap: 2,
+                opacity: 0.85,
+            },
+            selectStyle: {
+                color: '#dbf21d',
+                opacity: 0.9
+            }
+        });
+
+        layer.render();
+    });
+
+    layer.on('legendupdate', function (ev) {
+        var colorLegend = ev.colorLegend;
+        initLegend(colorLegend);
+    });
+
+    layer.on('mousemove', function (ev) {
+        updateInfo(ev);
+    });
+
+    function initLegend(colorLegend) {
+        var legends = colorLegend.map(function (item) {
+            return '<li class="color-item" style="background-color: ${item.color}"></li>'
+        });
+
+        var ranges = colorLegend.map((item, index) => {
+            // range 可能为小数，可以自行取整计算
+            item.range[0] = Math.round(item.range[0]);
+            item.range[1] = Math.round(item.range[1]);
+
+            if (index == colorLegend.length - 1) {
+                return '<li class="label-item">${item.range[0]}</li><li class="label-item">${item.range[1]}</li>';
+            }
+            return '<li class="label-item">${item.range[0]}</li>';
+        });
+
+        document.getElementById('legend-color').innerHTML = legends.join('');
+        document.getElementById('legend-label').innerHTML = ranges.join('');
+    }
+
+    function updateInfo(ev) {
+        var $val = document.getElementById('val');
+        var $lngLat = document.getElementById('lng-lat');
+
+        $val.innerText = ev.value;
+        $lngLat.innerText = ev.lngLat.valueOf();
+    }
+</script>
+</body>
+</html>

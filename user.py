@@ -7,7 +7,12 @@ www.*.cn/article/1访问1号文章的信息
 '''
 #此处定义有关用户的路由，然后再main.py注册该路由，并将url访问路径的前缀进行定义
 from flask import Blueprint
-from model import User
+from app.model import User
+# 此处定义有关用户的路由，然后再main.py注册该路由，并将url访问路径的前缀进行定义
+from flask import Blueprint
+
+from app.model import User
+
 user=Blueprint('user',__name__)
 @user.route('/<int:user_id>')
 def showUser(user_id):

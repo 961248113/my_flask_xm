@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div align="center" style="margin-top:60px;">
+    <h1>表单2</h1>
+    <br>
+    <form method="POST">
+        内容：{{ form.content }}
+        </br></br>
+        发送者：{{ form.sender }}
+        </br>
+        <input type="submit" value="Submit">提交
+        </br>
+        <input type="reset" value="Reset">重置
+        </br>
+    </form>
+    <h1>留言板：</h1>
+    <ul>
+        {% for each in entris %}
+            <li>留言内容：{{ each.content }}</li></br>
+            <li>发送者： {{ each.sender }}</li>
+        {% endfor %}
+    </ul>
+
+</div>
+</body>
+</html>
+
+{#{{ nav.top.render() }}#}

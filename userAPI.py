@@ -1,6 +1,6 @@
 # restful API开发
 from flask_restful import  Resource, reqparse #Resource资源代表浏览器链接
-from model import User
+from app.model import User
 from Jsonobject import *
 auth=reqparse.RequestParser()# 为解析器
 class Authentication(Resource):

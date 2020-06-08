@@ -1,7 +1,8 @@
 '''
 不用了
 '''
-
+def log(*args,**kwargs):
+    print('log',*args,**kwargs)
 import pymysql
 import pandas as pd
 conn = pymysql.connect(host='127.0.0.1', user='root', passwd='root', db='flasktest', port=3306, charset='utf8')
